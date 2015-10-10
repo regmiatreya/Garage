@@ -1,0 +1,31 @@
+
+
+.pagination-control li{
+    display: inline-block;
+}
+.pagination-control button{
+    font-size: 12px;
+    margin-top: -26px;
+    cursor:pointer;
+}
+.pagination{
+    margin:5px 15px !important;
+}
+
+.nodots{
+	list-style: none;
+}
+.listcolor{
+	color:#BC8C61;
+}
+.unselect{
+	color:#165B75;
+}
+.capitalize{
+	text-transform:capitalize;
+}
+
+.inlinelist{
+	float:left;
+	padding:5px;
+}

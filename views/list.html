@@ -1,0 +1,49 @@
+<section class="col-md-2 col-sm-4 col-xs-6">
+		<ul ng-repeat ="(catKey, catValue) in filterOption">
+			<p class="capitalize">{{catKey }}</p>
+			<ul ng-repeat ="(pkey, pvalue) in filterOption[catKey]">
+				<li ng-if="pvalue == false">
+					<a ng-click="addOption(catKey,pkey)" class="listcolor">{{pkey}}</a>
+				</li>
+			</ul>
+		</ul>
+</section>
+
+<section class="col-md-8 col-sm-8 col-sx-6">
+		<div class="col-md-12 col-sm-12 col-xs-12">
+				<div class="col-md-12 col-sm-12 col-xs-12">
+						<ul ng-repeat ="(catKey, catValue) in filterOption">
+							<ul ng-repeat ="(pkey, pvalue) in filterOption[catKey]" class="nodots inlinelist">
+								<li ng-if="pvalue == true" >
+									<a ng-click="removeOption(catKey,pkey)" class="inlinelist">{{pkey}}<span class="glyphicon glyphicon-remove"></span></a>
+								</li>
+							</ul>
+						</ul>
+				</div>
+
+				<div class="pagination text-center" ng-show="garageItems.length">
+						<ul class="pagination-control pagination">
+								 <li>
+										<button type="button" class="btn btn-primary" ng-disabled="curPage == 0"
+								 ng-click="curPage=curPage-1"> &lt;</button>
+
+								 </li>
+									<li>
+										<span>{{curPage + 1 }}/{{itemsPerPage *(curPage + 1 )}} of {{garageItems.length}}</span>
+								 </li>
+								 <li>
+										<button type="button" class="btn btn-primary"
+								 ng-disabled="curPage >=garageItems.length/itemsPerPage - 1"
+								 ng-click="curPage = curPage+1">&gt;</button>
+								 </li>
+						</ul>
+				</div>
+				<ul ng-repeat = "vehicle in garageItems | filter : filterVehicle | pagination: curPage * itemsPerPage | limitTo: itemsPerPage ">
+					<div class="col-md-12 well nodots">
+							<li><span class="col-md-8">{{vehicle.license}}</span><span class="pull-right">Level: {{vehicle.level}}</span></li>
+							<li><span class="col-md-8">{{vehicle.type}}</span><span class="pull-right">Slot:{{vehicle.slot}}</span></li>
+					</div>
+				</ul>
+		</div>
+</section>
+

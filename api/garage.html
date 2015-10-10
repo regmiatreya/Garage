@@ -1,0 +1,181 @@
+<script>	
+		var vehicleClass = function(){
+				this.type = '';
+				this.license = '';
+			  this.isParked = '';
+			
+				var generateRandom = function(n) {
+						return Math.floor( Math.random()*n);
+				}
+				var generateType =  function(){
+						var types = ['car','motorbike'];
+						var i = generateRandom(2);
+						this.type = types[i];
+				}
+				var generateLicense = function(){
+						var allstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ;
+						var preFix = allstring[generateRandom(26)] + allstring[generateRandom(26)];
+						this.license = preFix + "-" + generateRandom(10000);
+				}
+				var unPark  = function(){
+							this.isParked = false;
+				}
+				var park = function() {
+							this.isParked = true;
+				}
+				generateLicense();
+				generateType();
+				unPark();
+				return {
+								park : park,
+								unPark : unPark,
+								license : license,
+								type : type,
+								isParked : isParked
+				};
+		}
+		var garageClass = function(noOfLevels,slotsPerLevel){
+				this.noOfLevels = noOfLevels;
+				this.slotsPerLevel = slotsPerLevel;
+				this.totalSlots = this.noOfLevels * this.slotsPerLevel;
+				this.freeSlots = [];
+				this.vehicles = {};
+				this.errorMessage = '';
+			
+				if ( this.noOfLevels <= 0 ) {
+						this.errorMessage = "Number of levels must be 1 or higher";
+						return this.errorMessage;
+				}
+				if ( this.slotsPerLevel <= 0 ) {
+						this.errorMessage = "Number of Slots in one level must be 1 or higher";
+						return this.errorMessage;
+				}
+				var init_garage = function(){
+						for(var i=0 ; i < this.totalSlots ; i++ ){
+							this.freeSlots[i] = i;
+						}
+				}
+				var parkVehicle = function(myVehicle){
+						if (myVehicle.isParked === true) {
+								this.errorMessage = myVehicle.license + ' is already parked';
+								return this.errorMessage;
+						}	
+						if ( this.freeSlots.length <= 0) {
+								this.errorMessage = 'Garage is Full';
+								return this.errorMessage;
+						} 
+						this.vehicles[myVehicle.license] = this.freeSlots.shift();
+					 	myVehicle.park();
+						return true;
+				}
+				var unParkVehicle = function(myVehicle){
+						if (myVehicle.isParked === false) {
+								this.errorMessage = myVehicle.license + ' is already unParked';
+								return this.errorMessage;
+						}
+						this.freeSlots.unshift(this.vehicles[myVehicle.license]);
+						delete this.vehicles[myVehicle.license];
+						myVehicle.unPark();
+						return true;
+				}
+				var getLevelSlot = function(myVehicle) {	
+						if (myVehicle.isParked === false) {
+								this.errorMessage = myVehicle.license + ' is unParked';
+								return this.errorMessage;
+						}
+						var vehiclePosition = this.vehicles[myVehicle.license]
+						var slot =  vehiclePosition % slotsPerLevel + 1 ;
+						var level = Math.floor( vehiclePosition / slotsPerLevel) +1  ;
+						return ([level.toString(), slot.toString()]);
+				}
+				init_garage();
+				return {
+							vehicles : vehicles,
+							freeSlots : freeSlots,
+							parkVehicle : parkVehicle,
+							unParkVehicle : unParkVehicle,
+							getLevelSlot : getLevelSlot
+				};
+		}
+
+		var simulateGarage = function(nVehicles, nLevels, nslots ) {
+				// On error do something. error on park as well
+				// randomly park and unpark vehicles
+				var myGarage = garageClass(nLevels,nslots);
+				if ( myGarage.length !== undefined) {
+						console.log(myGarage);
+						return myGarage;
+				} 
+			
+				var garageItems = {};
+				for (var i=0; i<nVehicles; i++) {
+						var myVehicle = vehicleClass();
+						// put it in while loop to create a license number that is unique. For now just using if loop.
+						if (garageItems[myVehicle.license] === undefined){
+								var status = myGarage.parkVehicle(myVehicle);
+								var levelslot = myGarage.getLevelSlot(myVehicle);
+								garageItems[myVehicle.license] = {'license':myVehicle.license, 'type': myVehicle.type, 'level': levelslot[0], 'slot': levelslot[1]};
+						}
+				}	
+				return garageItems;
+		}
+		var nVehicles = 5;
+		var nLevels = 4;
+		var nslots = 10;	
+var garageItems = simulateGarage(nVehicles, nLevels, nslots );
+// testing function	
+(function test_garage(){
+	var mygarage = garageClass(1,7);
+	var numVehicles = 8;
+	var allVehicles = {};
+	console.log("Test1 :  Creating " + numVehicles + " vehicles and parking them");
+	for (var i=0; i < numVehicles; i++) {
+		var myVehicle = vehicleClass();
+		if ( allVehicles[myVehicle.license] === undefined) { 
+				// Parking vehicle
+				var status = mygarage.parkVehicle(myVehicle);
+				if (status === true) {
+					console.log("Successfully Parked Vehicle " + myVehicle.license );
+				} else {
+					console.log("Error: " + status);
+				}
+				allVehicles[myVehicle.license] = myVehicle 
+		}
+	}
+
+	for (var i in allVehicles) {
+		console.log("Test2 :  Parking a already parked car.");
+		console.log(allVehicles[i].license + " parked status is : "  + allVehicles[i].isParked )
+		var status1 = mygarage.parkVehicle(allVehicles[i]);
+		console.log(status1);
+		
+		console.log("Test3 :  get level and slot of parked car");
+		var LevelSlot = mygarage.getLevelSlot(allVehicles[i]);
+		console.log("Vehicle " + allVehicles[i].license + " is parked at Level: " + LevelSlot[0] + " and Slot: " + LevelSlot[1]);
+		
+		console.log("Test4 :  UnParking a car.");
+		var status2 = mygarage.unParkVehicle(allVehicles[i]);
+		console.log(allVehicles[i].license + " parked status is : "  + allVehicles[i].isParked )
+		
+		console.log("Test5 :  UnParking a unparked car.");
+		var status3 = mygarage.unParkVehicle(allVehicles[i]);
+		console.log(status3)
+		break;
+	}
+	
+	// Unparking some cars so the effect can be seen in garage class
+	var counter = 0;
+	for (var i in allVehicles) {
+		if (counter % 3 == 0) {
+			var status = mygarage.unParkVehicle(allVehicles[i]);
+		}
+		counter = counter + 1;
+	} 
+	console.log("Print all vehicles parked in garage. The number shows the internal slot number of garage system which is level*slotperlevel + slotnumber", mygarage.vehicles);
+	console.log("Free slots available in the garage : ",  mygarage.freeSlots );
+	console.log("End of test :)");
+}());
+
+</script>	
+		
+	
